@@ -6,7 +6,7 @@ terraform {
   }
   required_version = "> 1.0.0"
   backend "s3" {
-    bucket = "graphql-development-env-state"
+    bucket = "graphql-development-env-state-1"
     region = "us-west-2"
   }
 }
