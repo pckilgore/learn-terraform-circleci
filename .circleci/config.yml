@@ -1,5 +1,11 @@
 version: 2
 
+ignoremaster: &ignoremaster
+    filters:
+      branches:
+          ignore: master
+
+
 jobs:
   formatting:
     working_directory: /tmp/project
@@ -105,22 +111,30 @@ workflows:
   version: 2
   plan_approve_apply:
     jobs:
-      - init
+      - init:
+          filters:
+            branches:
+                ignore: master
       - validate
       - formatting
       - plan:
           requires:
             - init
+          <<: *ignoremaster
       - apply:
           requires: 
             - plan
+          <<: *ignoremaster
       - plan-destroy:
           requires:
             - apply
+          <<: *ignoremaster
       - hold-destroy:
           type: approval
           requires:
             - plan-destroy
+          <<: *ignoremaster
       - destroy:
           requires:
             - hold-destroy
+          <<: *ignoremaster
