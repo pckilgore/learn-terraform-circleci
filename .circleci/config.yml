@@ -1,6 +1,6 @@
 version: 2
 
-ignoremaster: &ignoremaster
+ignoreTrunk: &ignoreTrunk
     filters:
       branches:
           ignore: master
@@ -112,29 +112,29 @@ workflows:
   plan_approve_apply:
     jobs:
       - init:
-          filters:
-            branches:
-                ignore: master
-      - validate
-      - formatting
+          <<: *ignoreTrunk
+      - validate:
+          <<: *ignoreTrunk
+      - formatting:
+          <<: *ignoreTrunk
       - plan:
           requires:
             - init
-          <<: *ignoremaster
+          <<: *ignoreTrunk
       - apply:
           requires: 
             - plan
-          <<: *ignoremaster
+          <<: *ignoreTrunk
       - plan-destroy:
           requires:
             - apply
-          <<: *ignoremaster
+          <<: *ignoreTrunk
       - hold-destroy:
           type: approval
           requires:
             - plan-destroy
-          <<: *ignoremaster
+          <<: *ignoreTrunk
       - destroy:
           requires:
             - hold-destroy
-          <<: *ignoremaster
+          <<: *ignoreTrunk
