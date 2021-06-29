@@ -38,7 +38,7 @@ jobs:
           command: |
             terraform init \
               -input=false \
-              -backend-config="$(echo $CIRCLE_BRANCH | sha256sum | cut -d ' ' -f1)"
+              -backend-config="key=$(echo $CIRCLE_BRANCH | sha256sum | cut -d ' ' -f1)"
       - persist_to_workspace:
           root: .
           paths:
