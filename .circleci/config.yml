@@ -76,13 +76,14 @@ jobs:
             PR_ID=${CIRCLE_PULL_REQUEST##*/}
             BRANCH_SHA=$(echo $CIRCLE_BRANCH | sha256sum | cut -d ' ' -f1)
             PLAN=$(cat ./output.txt)
+            echo 
             apk --no-cache add curl
             curl -X POST \
             https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$PR_ID/comments \
             -H 'Authorization: Bearer '"$GITHUB_TOKEN"'' \
             --data-binary @- << EOF
             {
-                "body": "Development API Deployed to $BRANCH_SHA!\n\n Executed Plan:\n\`\`\`$PLAN\`\`\`"
+                "body": "Development API Deployed to $BRANCH_SHA!\n\n Executed Plan:\n\`\`\`${PLAN//$'\n'/\\n}\`\`\`"
             }
             EOF
 
