@@ -82,7 +82,7 @@ jobs:
             -H 'Authorization: Bearer '"$GITHUB_TOKEN"'' \
             --data-binary @- << EOF
             {
-                "body": "Development API Deployed to $BRANCH_SHA!\n\n Executed Plan:\n```$PLAN```"
+                "body": "Development API Deployed to $BRANCH_SHA!\n\n Executed Plan:\n\`\`\`$PLAN\`\`\`"
             }
             EOF
 
