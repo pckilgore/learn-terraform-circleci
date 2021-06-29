@@ -1,42 +1,39 @@
 version: 2
 
 ignoreTrunk: &ignoreTrunk
-    filters:
-      branches:
-          ignore: master
+  filters:
+    branches:
+      ignore: master
 
+terraformenv: &terraformenv
+  working_directory: /tmp/project
+  docker:
+    - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
 
 jobs:
   formatting:
-    working_directory: /tmp/project
-    docker:
-      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    <<: *terraformenv
     steps:
       - checkout
-      - run: 
-          name: "Check formatting" 
+      - run:
+          name: "Check formatting"
           command: terraform fmt -check
 
   validate:
-    working_directory: /tmp/project
-    docker:
-      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    <<: *terraformenv
     steps:
       - checkout
-      - run: 
-          name: "Initialize without backend" 
+      - run:
+          name: "Initialize without backend"
           command: |
-           terraform init -input=false -backend=false 
+            terraform init -input=false -backend=false
       - run:
           name: validate
           command: |
             terraform validate
-        
 
   init:
-    working_directory: /tmp/project
-    docker:
-      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    <<: *terraformenv
     steps:
       - checkout
       - run:
@@ -51,9 +48,7 @@ jobs:
             - .
 
   plan:
-    working_directory: /tmp/project
-    docker:
-      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    <<: *terraformenv
     steps:
       - attach_workspace:
           at: .
@@ -67,8 +62,7 @@ jobs:
             - .
 
   apply:
-    docker:
-      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    <<: *terraformenv
     steps:
       - attach_workspace:
           at: .
@@ -82,8 +76,8 @@ jobs:
             - .
 
   plan-destroy:
-    docker:
-      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    name: Wait to destroy environment until ready to merge
+    <<: *terraformenv
     steps:
       - attach_workspace:
           at: .
@@ -97,8 +91,8 @@ jobs:
             - .
 
   destroy:
-    docker:
-      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    name: Destroy infrastructure before allowing merge
+    <<: *terraformenv
     steps:
       - attach_workspace:
           at: .
@@ -122,7 +116,7 @@ workflows:
             - init
           <<: *ignoreTrunk
       - apply:
-          requires: 
+          requires:
             - plan
           <<: *ignoreTrunk
       - plan-destroy:
