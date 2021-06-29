@@ -70,6 +70,18 @@ jobs:
           name: terraform
           command: |
             terraform apply -auto-approve tfapply
+      - run:
+          name: Comment on PR
+          command: |
+            PR_ID=${CIRCLE_PULL_REQUEST##*/}
+            BRANCH_SHA=$(echo $CIRCLE_BRANCH | sha256sum | cut -d ' ' -f1)
+            PLAN=$(terraform show -no-color tfapply)
+
+            curl -X POST \
+            https://api.github.com/repos/$ORG/$REPO/issues/$PR_ID/comments \
+            -H 'Authorization: Bearer '"$GITHUB_TOKEN"'' \
+            -d '{ "body": "Development API Deployed to '"$DEPLOY_URL"'!\n\n Executed Plan:\n```'"$PLAN"'```" }'
+
       - persist_to_workspace:
           root: .
           paths:
