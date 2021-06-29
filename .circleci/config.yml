@@ -78,7 +78,7 @@ jobs:
             PLAN=$(echo plan_output.txt)
             apk --no-cache add curl
             curl -X POST \
-            https://api.github.com/repos/$ORG/$REPO/issues/$PR_ID/comments \
+            https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$PR_ID/comments \
             -H 'Authorization: Bearer '"$GITHUB_TOKEN"'' \
             -d '{ "body": "Development API Deployed to '"$DEPLOY_URL"'!\n\n Executed Plan:\n```'"$PLAN"'```" }'
 
