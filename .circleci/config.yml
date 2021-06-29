@@ -78,9 +78,6 @@ jobs:
             RAW_PLAN=$(cat ./output.txt)
             apk --no-cache add curl jq
             PLAN="$(echo $RAW_PLAN | jq -aRs)"
-            echo $PLAN 
-            echo 
-            echo $RAW_PLAN
             curl -X POST \
             https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$PR_ID/comments \
             -H 'Authorization: Bearer '"$GITHUB_TOKEN"'' \
@@ -120,7 +117,23 @@ jobs:
       - run:
           name: terraform destroy
           command: |
-            terraform apply -auto-approve tfdestroy
+            terraform apply -auto-approve tfdestroy >> ./destroy-output.txt
+      - run:
+          name: Comment on PR
+          command: |
+            PR_ID=${CIRCLE_PULL_REQUEST##*/}
+            BRANCH_SHA=$(echo $CIRCLE_BRANCH | sha256sum | cut -d ' ' -f1)
+            RAW_PLAN=$(cat ./destroy-output.txt)
+            apk --no-cache add curl jq
+            PLAN="$(echo $RAW_PLAN | jq -aRs)"
+            curl -X POST \
+            https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$PR_ID/comments \
+            -H 'Authorization: Bearer '"$GITHUB_TOKEN"'' \
+            --data-binary @- << EOF
+            {
+                "body": "Teardown Complete!\n\n Executed Plan:\n\`\`\`\n${PLAN:1:-1}\`\`\`"
+            }
+            EOF
 
 workflows:
   version: 2
