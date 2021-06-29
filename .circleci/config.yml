@@ -108,7 +108,7 @@ workflows:
       - init
       - validate
       - formatting
-      - plan
+      - plan:
           requires:
             - init
       - apply:
