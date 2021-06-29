@@ -5,6 +5,9 @@
 *.tfstate
 *.tfstate.*
 
+# Artifacts
+tfapply
+
 # Crash log files
 crash.log
 
