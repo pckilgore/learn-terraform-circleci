@@ -75,7 +75,7 @@ jobs:
           command: |
             PR_ID=${CIRCLE_PULL_REQUEST##*/}
             BRANCH_SHA=$(echo $CIRCLE_BRANCH | sha256sum | cut -d ' ' -f1)
-            PLAN=$(echo plan_output.txt)
+            PLAN=$(cat plan_output.txt)
             apk --no-cache add curl
             curl -X POST \
             https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$PR_ID/comments \
