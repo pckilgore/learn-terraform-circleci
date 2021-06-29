@@ -1,16 +1,59 @@
 version: 2
 
 jobs:
-  plan-apply:
+  formatting:
+    working_directory: /tmp/project
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - checkout
+      - run: 
+          name: "Check formatting" 
+          command: terraform fmt -check
+
+  validate:
+    working_directory: /tmp/project
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - checkout
+      - run: 
+          name: "Initialize without backend" 
+          command: |
+           terraform init -input=false -backend=false 
+      - run:
+          name: validate
+          command: |
+            terraform validate
+        
+
+  init:
     working_directory: /tmp/project
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
       - checkout
       - run:
-          name: terraform init & plan
+          name: terraform init
           command: |
-            terraform init -input=false
+            terraform init \
+              -input=false \
+              -backend-config="$(echo $CIRCLE_BRANCH | sha256sum | cut -d ' ' -f1)"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  plan:
+    working_directory: /tmp/project
+    docker:
+      - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: plan
+          command: |
             terraform plan -out tfapply -var-file variables.tfvars
       - persist_to_workspace:
           root: .
@@ -62,14 +105,13 @@ workflows:
   version: 2
   plan_approve_apply:
     jobs:
-      - plan-apply
-      - hold-apply:
-          type: approval
-          requires:
-            - plan-apply
+      - init
+      - validate
+      - formatting
+      - plan
       - apply:
-          requires:
-            - hold-apply
+          requires: 
+            - plan
       - plan-destroy:
           requires:
             - apply

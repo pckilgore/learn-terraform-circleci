@@ -1,15 +1,13 @@
 terraform {
   required_providers {
     aws = {
-      source  = "hashicorp/aws"
-      version = "3.44.0"
+        version = "3.44.0"
     }
   }
-  required_version = "> 0.14"
+  required_version = "> 1.0.0"
   backend "s3" {
-    bucket = "circle-ci-backend-20210626005059130900000001"
-    key = "terraform/webapp/terraform.tfstate"
-    region = "us-east-1"
+    bucket = "graphql-development-env-state"
+    region = "us-west-2"
   }
 }
 

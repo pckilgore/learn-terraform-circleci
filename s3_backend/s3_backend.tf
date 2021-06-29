@@ -1,18 +1,18 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "3.44.0"
     }
   }
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = "us-west-2"
 }
 
 resource "aws_s3_bucket" "terraform_state" {
-  bucket_prefix = "circle-ci-backend-"
+  bucket = "graphql-development-env-state"
   # Enable versioning so we can see the full revision history of our
   # state files
   force_destroy = true
@@ -27,8 +27,4 @@ resource "aws_s3_bucket" "terraform_state" {
       }
     }
   }
-}
-
-output "s3_bucket_name" {
-  value = aws_s3_bucket.terraform_state.bucket
 }
